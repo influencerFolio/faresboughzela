@@ -1,0 +1,77 @@
+{
+  "nav": {
+    "home": "Accueil",
+    "about": "Biographie",
+    "portfolio": "Portfolio",
+    "services": "Services",
+    "whyWork": "Pourquoi moi",
+    "contact": "Contact",
+    "collaborate": "Collaborons"
+  },
+  "common": {
+    "viewCase": "Voir le projet",
+    "watchReel": "Voir le reel",
+    "requestQuote": "Demander un devis",
+    "sendMessage": "Envoyer",
+    "loading": "Chargement…",
+    "error": "Une erreur s'est produite. Veuillez réessayer.",
+    "emptyPortfolio": "Aucun élément de portfolio publié pour le moment.",
+    "emptyServices": "Aucun service disponible pour le moment.",
+    "scrollExplore": "Faites défiler",
+    "followInstagram": "Suivre sur Instagram",
+    "joinTraining": "Rejoindre cette formation",
+    "sendRegistration": "Envoyer la demande d'inscription",
+    "submitProposal": "Envoyer la proposition",
+    "close": "Fermer",
+    "inquireSimilar": "Demander un projet similaire",
+    "chatWhatsApp": "WhatsApp",
+    "chatNow": "Discuter avec Fares",
+    "allWorks": "Tous les projets"
+  },
+  "contact": {
+    "badge": "Réservations & partenariats",
+    "title": "Créons",
+    "titleHighlight": "Quelque chose ensemble",
+    "subtitle": "Vous êtes une marque, un sponsor ou une entreprise ? Parlons de votre projet autour de la pêche sous-marine et du lifestyle outdoor.",
+    "whatsappTitle": "Messagez-moi sur WhatsApp",
+    "formTitle": "Demande de projet formelle",
+    "success": "Merci ! Votre demande a été reçue. Nous l'examinerons sous 24 heures.",
+    "registrationSuccess": "Votre demande d'inscription a été envoyée avec succès."
+  },
+  "form": {
+    "name": "Votre nom",
+    "company": "Marque ou entreprise",
+    "email": "E-mail professionnel",
+    "phone": "Téléphone / WhatsApp",
+    "collaborationType": "Type de collaboration",
+    "budget": "Budget cible",
+    "message": "Périmètre & livrables",
+    "fullName": "Nom complet",
+    "country": "Pays",
+    "training": "Formation choisie",
+    "preferredDate": "Date souhaitée",
+    "participants": "Nombre de participants",
+    "experience": "Niveau d'expérience"
+  },
+  "servicesPage": {
+    "title": "Services & formations",
+    "subtitle": "Instruction professionnelle, expériences guidées et services athlète."
+  },
+  "portfolioPage": {
+    "title": "Portfolio & médias",
+    "subtitle": "Action, équipement, exploration et collaborations de marque."
+  },
+  "training": {
+    "overview": "Aperçu",
+    "program": "Programme",
+    "information": "Informations",
+    "included": "Inclus",
+    "notIncluded": "Non inclus",
+    "requirements": "Prérequis"
+  },
+  "admin": {
+    "login": "Connexion admin",
+    "dashboard": "Tableau de bord",
+    "logout": "Déconnexion"
+  }
+}

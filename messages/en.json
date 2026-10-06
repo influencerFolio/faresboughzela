@@ -1,0 +1,77 @@
+{
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "portfolio": "Portfolio",
+    "services": "Services",
+    "whyWork": "Why Work With Me",
+    "contact": "Contact",
+    "collaborate": "Let's Collaborate"
+  },
+  "common": {
+    "viewCase": "View Case",
+    "watchReel": "Watch Reel",
+    "requestQuote": "Request Quote",
+    "sendMessage": "Send Message",
+    "loading": "Loading…",
+    "error": "Something went wrong. Please try again.",
+    "emptyPortfolio": "No portfolio items published yet.",
+    "emptyServices": "No services available yet.",
+    "scrollExplore": "Scroll to Explore",
+    "followInstagram": "Follow on Instagram",
+    "joinTraining": "Join This Training",
+    "sendRegistration": "Send Registration Request",
+    "submitProposal": "Submit Formal Proposal",
+    "close": "Close",
+    "inquireSimilar": "Inquire Similar Project",
+    "chatWhatsApp": "Chat on WhatsApp",
+    "chatNow": "Chat with Fares Now",
+    "allWorks": "All Works"
+  },
+  "contact": {
+    "badge": "Direct Bookings & Sponsorships",
+    "title": "Let's Create",
+    "titleHighlight": "Something Together",
+    "subtitle": "Are you a brand, sponsor, or company looking to create authentic content around spearfishing and the outdoor lifestyle? Let's talk about your project.",
+    "whatsappTitle": "Message Me on WhatsApp",
+    "formTitle": "Formal Project Inquiry",
+    "success": "Thank you! Your inquiry has been received. We will review your brief within 24 hours.",
+    "registrationSuccess": "Your registration request has been sent successfully."
+  },
+  "form": {
+    "name": "Your Name",
+    "company": "Brand or Company",
+    "email": "Corporate Email",
+    "phone": "Phone / WhatsApp",
+    "collaborationType": "Collaboration Type",
+    "budget": "Target Budget / Scale",
+    "message": "Project Scope & Deliverables",
+    "fullName": "Full Name",
+    "country": "Country",
+    "training": "Selected Training",
+    "preferredDate": "Preferred Date",
+    "participants": "Number of Participants",
+    "experience": "Experience Level"
+  },
+  "servicesPage": {
+    "title": "Services & Training",
+    "subtitle": "Professional spearfishing instruction, guided experiences, and athlete services."
+  },
+  "portfolioPage": {
+    "title": "Portfolio & Media",
+    "subtitle": "Spearfishing action, gear, exploration, and brand collaborations."
+  },
+  "training": {
+    "overview": "Overview",
+    "program": "Program",
+    "information": "Information",
+    "included": "What's Included",
+    "notIncluded": "What's Not Included",
+    "requirements": "Requirements"
+  },
+  "admin": {
+    "login": "Admin Login",
+    "dashboard": "Dashboard",
+    "logout": "Logout"
+  }
+}
