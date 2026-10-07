@@ -7,8 +7,11 @@
   # Do not mark these as "Secret" in the Netlify UI.
   # Keep real secrets (FIREBASE_ADMIN_PRIVATE_KEY, CLOUDINARY_API_SECRET, REVALIDATE_SECRET)
   # out of this list so accidental leaks still fail the build.
+  #
+  # Important: use a long random REVALIDATE_SECRET (not 1234567890). Weak values
+  # false-positive against vendor bundles (Deno std, source maps).
   SECRETS_SCAN_OMIT_KEYS = "NEXT_PUBLIC_SITE_URL,NEXT_PUBLIC_DEFAULT_LOCALE,NEXT_PUBLIC_FIREBASE_API_KEY,NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,NEXT_PUBLIC_FIREBASE_PROJECT_ID,NEXT_PUBLIC_FIREBASE_APP_ID,NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,CLOUDINARY_UPLOAD_FOLDER,ADMIN_BOOTSTRAP_EMAIL,RATE_LIMIT_MAX_PER_HOUR,FIREBASE_ADMIN_PROJECT_ID"
-  SECRETS_SCAN_OMIT_PATHS = ".netlify/.next/cache,.next/cache"
+  SECRETS_SCAN_OMIT_PATHS = ".netlify/.next/cache,.next/cache,.netlify/.next/server/chunks/ssr,.netlify/edge-functions"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
