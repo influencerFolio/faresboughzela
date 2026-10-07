@@ -21,7 +21,14 @@ import { useState } from "react";
 
 export function HomepageSettingsForm({ initial }: { initial: HomepageSettings }) {
   const { getToken } = useAdminAuth();
-  const [data, setData] = useState(initial);
+  const [data, setData] = useState<HomepageSettings>({
+    ...initial,
+    heroPills: initial.heroPills ?? [],
+    stats: initial.stats ?? [],
+    collaborationCards: initial.collaborationCards ?? [],
+    whyWorkPillars: initial.whyWorkPillars ?? [],
+    featuredPortfolioIds: initial.featuredPortfolioIds ?? [],
+  });
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
 

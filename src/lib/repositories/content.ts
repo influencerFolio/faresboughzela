@@ -17,15 +17,32 @@ import type {
   TrainingRegistration,
 } from "@/types/cms";
 
+/** Strip Firestore Timestamps / class instances for RSC → client props. */
+function toClientJson<T>(value: T): T {
+  return JSON.parse(
+    JSON.stringify(value, (_key, v) => {
+      if (v && typeof v === "object" && typeof (v as { toDate?: unknown }).toDate === "function") {
+        try {
+          return (v as { toDate: () => Date }).toDate().toISOString();
+        } catch {
+          return null;
+        }
+      }
+      return v;
+    }),
+  ) as T;
+}
+
 async function getDoc<T>(path: string, fallback: T): Promise<T> {
   const db = getAdminDb();
-  if (!db) return fallback;
+  if (!db) return toClientJson(fallback);
   try {
     const snap = await db.doc(path).get();
-    if (!snap.exists) return fallback;
-    return { ...fallback, ...snap.data() } as T;
-  } catch {
-    return fallback;
+    if (!snap.exists) return toClientJson(fallback);
+    return toClientJson({ ...fallback, ...snap.data() } as T);
+  } catch (error) {
+    console.error(`[content] getDoc ${path} failed:`, error);
+    return toClientJson(fallback);
   }
 }
 
@@ -37,38 +54,58 @@ async function getCollection<T>(
   const db = getAdminDb();
   if (!db) {
     const list = filter ? fallback.filter(filter) : fallback;
-    return list;
+    return toClientJson(list);
   }
   try {
     const snap = await db.collection(name).get();
     if (snap.empty) {
-      return filter ? fallback.filter(filter) : fallback;
+      const list = filter ? fallback.filter(filter) : fallback;
+      return toClientJson(list);
     }
     const items = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as T);
-    return filter ? items.filter(filter) : items;
-  } catch {
-    return filter ? fallback.filter(filter) : fallback;
+    const list = filter ? items.filter(filter) : items;
+    return toClientJson(list);
+  } catch (error) {
+    console.error(`[content] getCollection ${name} failed:`, error);
+    const list = filter ? fallback.filter(filter) : fallback;
+    return toClientJson(list);
   }
 }
 
 export async function getGeneralSettings(): Promise<GeneralSettings> {
   const data = await getDoc("settings/general", defaultGeneralSettings);
-  return {
+  return toClientJson({
     ...defaultGeneralSettings,
     ...data,
     social: {
       ...defaultGeneralSettings.social,
       ...data.social,
     },
-  };
+  });
 }
 
 export async function getHomepageSettings(): Promise<HomepageSettings> {
-  return getDoc("settings/homepage", defaultHomepageSettings);
+  const data = await getDoc("settings/homepage", defaultHomepageSettings);
+  return toClientJson({
+    ...defaultHomepageSettings,
+    ...data,
+    heroPills: data.heroPills ?? defaultHomepageSettings.heroPills,
+    stats: data.stats ?? defaultHomepageSettings.stats,
+    collaborationCards:
+      data.collaborationCards ?? defaultHomepageSettings.collaborationCards,
+    whyWorkPillars: data.whyWorkPillars ?? defaultHomepageSettings.whyWorkPillars,
+    featuredPortfolioIds:
+      data.featuredPortfolioIds ?? defaultHomepageSettings.featuredPortfolioIds,
+  });
 }
 
 export async function getAboutSettings(): Promise<AboutSettings> {
-  return getDoc("settings/about", defaultAboutSettings);
+  const data = await getDoc("settings/about", defaultAboutSettings);
+  return toClientJson({
+    ...defaultAboutSettings,
+    ...data,
+    highlights: data.highlights ?? defaultAboutSettings.highlights,
+  });
 }
 
 export async function getPublishedPortfolio(): Promise<PortfolioItem[]> {
@@ -108,7 +145,7 @@ export async function getPageSeo(pageKey: string): Promise<PageSeo | null> {
   try {
     const snap = await db.doc(`seoPages/${pageKey}`).get();
     if (!snap.exists) return null;
-    return snap.data() as PageSeo;
+    return toClientJson(snap.data() as PageSeo);
   } catch {
     return null;
   }
@@ -123,7 +160,9 @@ export async function getMessagesAdmin(): Promise<ContactMessage[]> {
       .orderBy("createdAt", "desc")
       .limit(200)
       .get();
-    return snap.docs.map((d) => ({ id: d.id, ...d.data() }) as ContactMessage);
+    return toClientJson(
+      snap.docs.map((d) => ({ id: d.id, ...d.data() }) as ContactMessage),
+    );
   } catch {
     return [];
   }
@@ -138,8 +177,10 @@ export async function getRegistrationsAdmin(): Promise<TrainingRegistration[]> {
       .orderBy("createdAt", "desc")
       .limit(200)
       .get();
-    return snap.docs.map(
-      (d) => ({ id: d.id, ...d.data() }) as TrainingRegistration,
+    return toClientJson(
+      snap.docs.map(
+        (d) => ({ id: d.id, ...d.data() }) as TrainingRegistration,
+      ),
     );
   } catch {
     return [];
