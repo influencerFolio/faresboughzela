@@ -11,6 +11,7 @@ import {
   TextInput,
   inputClassName,
 } from "@/components/admin/fields";
+import { readApiError } from "@/lib/admin-api";
 import { defaultGeneralSettings } from "@/lib/data/defaults";
 import type { GeneralSettings, SocialPlatformId } from "@/types/cms";
 import { useState } from "react";
@@ -40,6 +41,7 @@ export function GeneralSettingsForm({
     setStatus(null);
     try {
       const token = await getToken();
+      if (!token) throw new Error("Not logged in — sign in again.");
       const res = await fetch("/api/admin/settings", {
         method: "POST",
         headers: {
@@ -48,7 +50,7 @@ export function GeneralSettingsForm({
         },
         body: JSON.stringify({ doc: "settings/general", data }),
       });
-      if (!res.ok) throw new Error("Save failed");
+      if (!res.ok) throw new Error(await readApiError(res, "Save failed"));
       setStatus("Saved");
     } catch (e) {
       setStatus(e instanceof Error ? e.message : "Save failed");

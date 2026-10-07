@@ -19,20 +19,30 @@ export function isFirebaseAdminConfigured(): boolean {
   );
 }
 
-/** Normalize private keys from Netlify / CI env vars. */
-function resolvePrivateKey(): string {
-  const b64 = process.env.FIREBASE_ADMIN_PRIVATE_KEY_BASE64?.trim();
-  if (b64) {
-    return Buffer.from(b64, "base64").toString("utf8").trim();
-  }
-
-  let key = (process.env.FIREBASE_ADMIN_PRIVATE_KEY || "").trim();
+function stripWrappingQuotes(value: string): string {
+  let key = value.trim();
   if (
     (key.startsWith('"') && key.endsWith('"')) ||
     (key.startsWith("'") && key.endsWith("'"))
   ) {
     key = key.slice(1, -1);
   }
+  return key.trim();
+}
+
+/** Normalize private keys from Netlify / CI env vars. */
+function resolvePrivateKey(): string {
+  const b64Raw = process.env.FIREBASE_ADMIN_PRIVATE_KEY_BASE64;
+  if (b64Raw?.trim()) {
+    const b64 = stripWrappingQuotes(b64Raw).replace(/\s+/g, "");
+    const decoded = Buffer.from(b64, "base64").toString("utf8").trim();
+    if (decoded.includes("BEGIN PRIVATE KEY")) return decoded;
+    throw new Error(
+      "FIREBASE_ADMIN_PRIVATE_KEY_BASE64 decoded but is not a valid PEM key",
+    );
+  }
+
+  let key = stripWrappingQuotes(process.env.FIREBASE_ADMIN_PRIVATE_KEY || "");
   // Netlify may store either real newlines or literal \n
   key = key.replace(/\\n/g, "\n");
   return key.trim();

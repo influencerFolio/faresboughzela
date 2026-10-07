@@ -1,3 +1,4 @@
+import { AdminHealthCheck } from "@/components/admin/AdminHealthCheck";
 import Link from "next/link";
 
 const cards = [
@@ -53,6 +54,7 @@ export default function AdminHomePage() {
         Edit your site with forms — no code or JSON required. Pick a section to
         update content, then save.
       </p>
+      <AdminHealthCheck />
       <div className="mt-space-xl grid gap-space-md sm:grid-cols-2 xl:grid-cols-3">
         {cards.map((card) => (
           <Link

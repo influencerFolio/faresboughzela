@@ -11,6 +11,7 @@ import {
   TextInput,
   emptyLocalized,
 } from "@/components/admin/fields";
+import { readApiError } from "@/lib/admin-api";
 import { defaultHomepageSettings } from "@/lib/data/defaults";
 import type {
   CollaborationCard,
@@ -56,6 +57,7 @@ export function HomepageSettingsForm({
     setStatus(null);
     try {
       const token = await getToken();
+      if (!token) throw new Error("Not logged in — sign in again.");
       const res = await fetch("/api/admin/settings", {
         method: "POST",
         headers: {
@@ -64,7 +66,7 @@ export function HomepageSettingsForm({
         },
         body: JSON.stringify({ doc: "settings/homepage", data }),
       });
-      if (!res.ok) throw new Error("Save failed");
+      if (!res.ok) throw new Error(await readApiError(res, "Save failed"));
       setStatus("Saved");
     } catch (e) {
       setStatus(e instanceof Error ? e.message : "Save failed");

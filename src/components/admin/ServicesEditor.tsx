@@ -13,6 +13,7 @@ import {
   Toggle,
   emptyLocalized,
 } from "@/components/admin/fields";
+import { readApiError } from "@/lib/admin-api";
 import type { LocalizedString, ServiceItem } from "@/types/cms";
 import { useEffect, useMemo, useState } from "react";
 
@@ -132,7 +133,7 @@ export function ServicesEditor({
           data: payload,
         }),
       });
-      if (!res.ok) throw new Error("Save failed");
+      if (!res.ok) throw new Error(await readApiError(res, "Save failed"));
       setItems((prev) => {
         const exists = prev.some((i) => i.id === id);
         return exists

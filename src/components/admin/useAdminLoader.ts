@@ -1,6 +1,7 @@
 "use client";
 
 import { useAdminAuth } from "@/components/admin/AdminAuthProvider";
+import { readApiError } from "@/lib/admin-api";
 import { useEffect, useState } from "react";
 
 export function useAdminLoader<T>(url: string, fallback: T) {
@@ -22,13 +23,12 @@ export function useAdminLoader<T>(url: string, fallback: T) {
       setError(null);
       try {
         const token = await getToken();
+        if (!token) throw new Error("Not logged in — sign in again.");
         const res = await fetch(url, {
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
+          headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) {
-          throw new Error(
-            res.status === 401 ? "Unauthorized" : "Failed to load content",
-          );
+          throw new Error(await readApiError(res, "Failed to load content"));
         }
         const json = (await res.json()) as T;
         if (!cancelled) setData(json);
