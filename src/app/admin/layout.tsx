@@ -3,6 +3,9 @@ import { AdminShell } from "@/components/admin/AdminShell";
 import { Inter, Oswald } from "next/font/google";
 import "../globals.css";
 
+/** Admin routes hit Firestore at request time — never pre-render at build. */
+export const dynamic = "force-dynamic";
+
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const oswald = Oswald({
   subsets: ["latin"],

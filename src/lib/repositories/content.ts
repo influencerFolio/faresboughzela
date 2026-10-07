@@ -117,25 +117,33 @@ export async function getPageSeo(pageKey: string): Promise<PageSeo | null> {
 export async function getMessagesAdmin(): Promise<ContactMessage[]> {
   const db = getAdminDb();
   if (!db) return [];
-  const snap = await db
-    .collection("messages")
-    .orderBy("createdAt", "desc")
-    .limit(200)
-    .get();
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() }) as ContactMessage);
+  try {
+    const snap = await db
+      .collection("messages")
+      .orderBy("createdAt", "desc")
+      .limit(200)
+      .get();
+    return snap.docs.map((d) => ({ id: d.id, ...d.data() }) as ContactMessage);
+  } catch {
+    return [];
+  }
 }
 
 export async function getRegistrationsAdmin(): Promise<TrainingRegistration[]> {
   const db = getAdminDb();
   if (!db) return [];
-  const snap = await db
-    .collection("registrations")
-    .orderBy("createdAt", "desc")
-    .limit(200)
-    .get();
-  return snap.docs.map(
-    (d) => ({ id: d.id, ...d.data() }) as TrainingRegistration,
-  );
+  try {
+    const snap = await db
+      .collection("registrations")
+      .orderBy("createdAt", "desc")
+      .limit(200)
+      .get();
+    return snap.docs.map(
+      (d) => ({ id: d.id, ...d.data() }) as TrainingRegistration,
+    );
+  } catch {
+    return [];
+  }
 }
 
 export async function saveSettingsDoc(path: string, data: object) {
