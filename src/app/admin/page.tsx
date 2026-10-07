@@ -52,7 +52,7 @@ export default function AdminHomePage() {
       <h1 className="text-3xl font-semibold uppercase">Dashboard</h1>
       <p className="mt-2 max-w-2xl text-tertiary">
         Edit your site with forms — no code or JSON required. Pick a section to
-        update content, then save.
+        update content, then save. Check server status below if save or upload fails.
       </p>
       <AdminHealthCheck />
       <div className="mt-space-xl grid gap-space-md sm:grid-cols-2 xl:grid-cols-3">

@@ -1,0 +1,39 @@
+# =============================================================================
+# NETLIFY — NOT SECRET (do NOT tick "Secret" in Netlify UI)
+# =============================================================================
+# Copy each line as a separate environment variable:
+#   Key   = left side (before =)
+#   Value = right side only (no quotes unless your value needs them)
+#
+# These are public or low-risk. NEXT_PUBLIC_* is sent to the browser on purpose.
+# =============================================================================
+
+# Site URL — use your live Netlify URL in production
+NEXT_PUBLIC_SITE_URL=https://faresboughzela.netlify.app
+NEXT_PUBLIC_DEFAULT_LOCALE=en
+
+# Firebase client (public — same as Firebase Console → Project settings → Your apps)
+NEXT_PUBLIC_FIREBASE_API_KEY=your_web_api_key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=faresboughzela-fc7ce.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=faresboughzela-fc7ce
+NEXT_PUBLIC_FIREBASE_APP_ID=
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=faresboughzela-fc7ce.firebasestorage.app
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=694871440838
+
+# Cloudinary (cloud name is public)
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your_cloud_name
+
+# Firebase Admin — IDs/emails are not passwords (still server-only, but OK as plain env)
+FIREBASE_ADMIN_PROJECT_ID=faresboughzela-fc7ce
+FIREBASE_ADMIN_CLIENT_EMAIL=firebase-adminsdk-xxxxx@faresboughzela-fc7ce.iam.gserviceaccount.com
+
+# Folder name only (not a password)
+CLOUDINARY_UPLOAD_FOLDER=faresboughzela
+
+# Email / limits (not secret)
+ADMIN_BOOTSTRAP_EMAIL=your-admin@gmail.com
+RATE_LIMIT_MAX_PER_HOUR=20
+
+# Optional: Cloudinary API key is often treated as semi-public; you may leave unmarked
+# "Secret" on Netlify if scanning complains — real protection is CLOUDINARY_API_SECRET
+CLOUDINARY_API_KEY=your_cloudinary_api_key
