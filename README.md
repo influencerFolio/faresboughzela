@@ -38,7 +38,10 @@ See [`.env.example`](.env.example) for all variables.
 
 1. Create a Firebase project and enable **Authentication** (Email/Password) and **Firestore**.
 2. Create a web app and copy client keys into `.env.local`.
-3. Generate a service account key → `FIREBASE_ADMIN_*` fields (escape newlines in private key as `\n`).
+3. Generate a service account key → `FIREBASE_ADMIN_*` fields.
+   - Local: put the PEM in `FIREBASE_ADMIN_PRIVATE_KEY` with `\n` for newlines.
+   - **Netlify (recommended):** set `FIREBASE_ADMIN_PRIVATE_KEY_BASE64` to the base64 of the full PEM (avoids newline corruption). Generate with:
+     `node -e "require('dotenv').config(); console.log(Buffer.from(process.env.FIREBASE_ADMIN_PRIVATE_KEY.replace(/\\\\n/g,'\\n')).toString('base64'))"`
 4. Deploy rules and indexes:
 
 ```bash
