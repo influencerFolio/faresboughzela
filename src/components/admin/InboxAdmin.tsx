@@ -1,20 +1,35 @@
 "use client";
 
 import { useAdminAuth } from "@/components/admin/AdminAuthProvider";
+import { useAdminLoader } from "@/components/admin/useAdminLoader";
 import type { ContactMessage, TrainingRegistration } from "@/types/cms";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-export function InboxAdmin({
-  messages,
-  registrations,
-}: {
+type InboxPayload = {
   messages: ContactMessage[];
   registrations: TrainingRegistration[];
+};
+
+export function InboxAdmin({
+  messages = [],
+  registrations = [],
+}: {
+  messages?: ContactMessage[];
+  registrations?: TrainingRegistration[];
 }) {
   const { getToken } = useAdminAuth();
+  const { data, loading, error } = useAdminLoader<InboxPayload>(
+    "/api/admin/inbox",
+    { messages, registrations },
+  );
   const [status, setStatus] = useState<string | null>(null);
   const [messageRows, setMessageRows] = useState(messages);
   const [registrationRows, setRegistrationRows] = useState(registrations);
+
+  useEffect(() => {
+    setMessageRows(data.messages ?? []);
+    setRegistrationRows(data.registrations ?? []);
+  }, [data]);
 
   async function updateStatus(
     collection: "messages" | "registrations",
@@ -52,6 +67,10 @@ export function InboxAdmin({
     setStatus("Updated");
   }
 
+  if (loading) {
+    return <p className="text-sm text-tertiary">Loading inbox…</p>;
+  }
+
   return (
     <div className="space-y-space-2xl">
       <header>
@@ -59,6 +78,7 @@ export function InboxAdmin({
         <p className="mt-2 text-sm text-tertiary">
           Contact form messages and training registrations. Change status as you follow up.
         </p>
+        {error ? <p className="mt-2 text-sm text-primary-container">{error}</p> : null}
         {status ? <p className="mt-2 text-sm text-secondary">{status}</p> : null}
       </header>
 

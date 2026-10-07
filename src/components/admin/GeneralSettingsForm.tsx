@@ -1,6 +1,7 @@
 "use client";
 
 import { useAdminAuth } from "@/components/admin/AdminAuthProvider";
+import { useAdminLoader } from "@/components/admin/useAdminLoader";
 import {
   Field,
   ImageField,
@@ -10,6 +11,7 @@ import {
   TextInput,
   inputClassName,
 } from "@/components/admin/fields";
+import { defaultGeneralSettings } from "@/lib/data/defaults";
 import type { GeneralSettings, SocialPlatformId } from "@/types/cms";
 import { useState } from "react";
 
@@ -20,9 +22,16 @@ const SOCIALS: { id: SocialPlatformId; label: string }[] = [
   { id: "facebook", label: "Facebook" },
 ];
 
-export function GeneralSettingsForm({ initial }: { initial: GeneralSettings }) {
+export function GeneralSettingsForm({
+  initial = defaultGeneralSettings,
+}: {
+  initial?: GeneralSettings;
+}) {
   const { getToken } = useAdminAuth();
-  const [data, setData] = useState(initial);
+  const { data, setData, loading, error } = useAdminLoader(
+    "/api/admin/settings?doc=settings/general",
+    initial,
+  );
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
 
@@ -48,6 +57,10 @@ export function GeneralSettingsForm({ initial }: { initial: GeneralSettings }) {
     }
   }
 
+  if (loading) {
+    return <p className="text-sm text-tertiary">Loading settings…</p>;
+  }
+
   return (
     <div className="space-y-space-lg pb-24">
       <header>
@@ -57,6 +70,7 @@ export function GeneralSettingsForm({ initial }: { initial: GeneralSettings }) {
         <p className="mt-2 text-sm text-tertiary">
           Site identity, contact details, and social profiles shown across the site.
         </p>
+        {error ? <p className="mt-2 text-sm text-primary-container">{error}</p> : null}
       </header>
 
       <SectionCard title="Brand" description="Name and tagline visitors see in the header and footer.">

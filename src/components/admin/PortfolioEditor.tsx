@@ -1,6 +1,7 @@
 "use client";
 
 import { useAdminAuth } from "@/components/admin/AdminAuthProvider";
+import { useAdminLoader } from "@/components/admin/useAdminLoader";
 import {
   Field,
   ImageField,
@@ -13,7 +14,7 @@ import {
   inputClassName,
 } from "@/components/admin/fields";
 import type { PortfolioCategory, PortfolioItem } from "@/types/cms";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 const CATEGORIES: PortfolioCategory[] = [
   "spearfishing",
@@ -36,15 +37,32 @@ function blankItem(order: number): PortfolioItem {
   };
 }
 
-export function PortfolioEditor({ items: initialItems }: { items: PortfolioItem[] }) {
+export function PortfolioEditor({
+  items: initialItems = [],
+}: {
+  items?: PortfolioItem[];
+}) {
   const { getToken } = useAdminAuth();
-  const [items, setItems] = useState(initialItems);
-  const [selectedId, setSelectedId] = useState(initialItems[0]?.id ?? "");
-  const [draft, setDraft] = useState<PortfolioItem>(
-    initialItems[0] ?? blankItem(initialItems.length),
+  const {
+    data: items,
+    setData: setItems,
+    loading,
+    error,
+  } = useAdminLoader<PortfolioItem[]>(
+    "/api/admin/collection?collection=portfolio",
+    initialItems,
   );
+  const [selectedId, setSelectedId] = useState("");
+  const [draft, setDraft] = useState<PortfolioItem>(blankItem(0));
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!items.length) return;
+    if (selectedId && items.some((i) => i.id === selectedId)) return;
+    setSelectedId(items[0].id);
+    setDraft(items[0]);
+  }, [items, selectedId]);
 
   const selectedLabel = useMemo(
     () => draft.title?.en || draft.slug || draft.id,
@@ -148,6 +166,10 @@ export function PortfolioEditor({ items: initialItems }: { items: PortfolioItem[
     }
   }
 
+  if (loading) {
+    return <p className="text-sm text-tertiary">Loading portfolio…</p>;
+  }
+
   return (
     <div className="space-y-space-lg pb-24">
       <header>
@@ -155,6 +177,7 @@ export function PortfolioEditor({ items: initialItems }: { items: PortfolioItem[
         <p className="mt-2 text-sm text-tertiary">
           Add photos and projects. Upload a cover, fill EN/FR text, then save.
         </p>
+        {error ? <p className="mt-2 text-sm text-primary-container">{error}</p> : null}
       </header>
 
       <div className="flex flex-wrap gap-2">

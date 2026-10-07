@@ -1,6 +1,7 @@
 "use client";
 
 import { useAdminAuth } from "@/components/admin/AdminAuthProvider";
+import { useAdminLoader } from "@/components/admin/useAdminLoader";
 import {
   Field,
   ImageField,
@@ -10,12 +11,23 @@ import {
   TextInput,
   emptyLocalized,
 } from "@/components/admin/fields";
+import { defaultAboutSettings } from "@/lib/data/defaults";
 import type { AboutSettings } from "@/types/cms";
 import { useState } from "react";
 
-export function AboutSettingsForm({ initial }: { initial: AboutSettings }) {
+export function AboutSettingsForm({
+  initial = defaultAboutSettings,
+}: {
+  initial?: AboutSettings;
+}) {
   const { getToken } = useAdminAuth();
-  const [data, setData] = useState(initial);
+  const { data, setData, loading, error } = useAdminLoader(
+    "/api/admin/settings?doc=settings/about",
+    {
+      ...initial,
+      highlights: initial.highlights ?? [],
+    },
+  );
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
 
@@ -41,6 +53,10 @@ export function AboutSettingsForm({ initial }: { initial: AboutSettings }) {
     }
   }
 
+  if (loading) {
+    return <p className="text-sm text-tertiary">Loading about…</p>;
+  }
+
   return (
     <div className="space-y-space-lg pb-24">
       <header>
@@ -48,6 +64,7 @@ export function AboutSettingsForm({ initial }: { initial: AboutSettings }) {
         <p className="mt-2 text-sm text-tertiary">
           Bio, portrait, and highlight cards on the about section.
         </p>
+        {error ? <p className="mt-2 text-sm text-primary-container">{error}</p> : null}
       </header>
 
       <SectionCard title="Story">

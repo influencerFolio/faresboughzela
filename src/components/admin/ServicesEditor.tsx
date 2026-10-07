@@ -1,6 +1,7 @@
 "use client";
 
 import { useAdminAuth } from "@/components/admin/AdminAuthProvider";
+import { useAdminLoader } from "@/components/admin/useAdminLoader";
 import {
   Field,
   ImageField,
@@ -13,7 +14,7 @@ import {
   emptyLocalized,
 } from "@/components/admin/fields";
 import type { LocalizedString, ServiceItem } from "@/types/cms";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 function blankService(order: number): ServiceItem {
   return {
@@ -57,15 +58,32 @@ function localizedToLines(items: LocalizedString[]): string {
     .join("\n");
 }
 
-export function ServicesEditor({ items: initialItems }: { items: ServiceItem[] }) {
+export function ServicesEditor({
+  items: initialItems = [],
+}: {
+  items?: ServiceItem[];
+}) {
   const { getToken } = useAdminAuth();
-  const [items, setItems] = useState(initialItems);
-  const [selectedId, setSelectedId] = useState(initialItems[0]?.id ?? "");
-  const [draft, setDraft] = useState<ServiceItem>(
-    initialItems[0] ?? blankService(initialItems.length),
+  const {
+    data: items,
+    setData: setItems,
+    loading,
+    error,
+  } = useAdminLoader<ServiceItem[]>(
+    "/api/admin/collection?collection=services",
+    initialItems,
   );
+  const [selectedId, setSelectedId] = useState("");
+  const [draft, setDraft] = useState<ServiceItem>(blankService(0));
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!items.length) return;
+    if (selectedId && items.some((i) => i.id === selectedId)) return;
+    setSelectedId(items[0].id);
+    setDraft(items[0]);
+  }, [items, selectedId]);
 
   const selectedLabel = useMemo(
     () => draft.name?.en || draft.slug || draft.id,
@@ -169,6 +187,10 @@ export function ServicesEditor({ items: initialItems }: { items: ServiceItem[] }
     }
   }
 
+  if (loading) {
+    return <p className="text-sm text-tertiary">Loading services…</p>;
+  }
+
   return (
     <div className="space-y-space-lg pb-24">
       <header>
@@ -178,6 +200,7 @@ export function ServicesEditor({ items: initialItems }: { items: ServiceItem[] }
         <p className="mt-2 text-sm text-tertiary">
           Manage offerings and training programs with simple fields — no JSON.
         </p>
+        {error ? <p className="mt-2 text-sm text-primary-container">{error}</p> : null}
       </header>
 
       <div className="flex flex-wrap gap-2">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useAdminAuth } from "@/components/admin/AdminAuthProvider";
+import { useAdminLoader } from "@/components/admin/useAdminLoader";
 import {
   Field,
   ImageField,
@@ -10,6 +11,7 @@ import {
   TextInput,
   emptyLocalized,
 } from "@/components/admin/fields";
+import { defaultHomepageSettings } from "@/lib/data/defaults";
 import type {
   CollaborationCard,
   HomepageSettings,
@@ -19,16 +21,33 @@ import type {
 } from "@/types/cms";
 import { useState } from "react";
 
-export function HomepageSettingsForm({ initial }: { initial: HomepageSettings }) {
-  const { getToken } = useAdminAuth();
-  const [data, setData] = useState<HomepageSettings>({
+function normalizeHomepage(initial: HomepageSettings): HomepageSettings {
+  return {
     ...initial,
     heroPills: initial.heroPills ?? [],
     stats: initial.stats ?? [],
     collaborationCards: initial.collaborationCards ?? [],
     whyWorkPillars: initial.whyWorkPillars ?? [],
     featuredPortfolioIds: initial.featuredPortfolioIds ?? [],
-  });
+  };
+}
+
+export function HomepageSettingsForm({
+  initial = defaultHomepageSettings,
+}: {
+  initial?: HomepageSettings;
+}) {
+  const { getToken } = useAdminAuth();
+  const {
+    data: raw,
+    setData,
+    loading,
+    error,
+  } = useAdminLoader(
+    "/api/admin/settings?doc=settings/homepage",
+    normalizeHomepage(initial),
+  );
+  const data = normalizeHomepage(raw);
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
 
@@ -79,6 +98,10 @@ export function HomepageSettingsForm({ initial }: { initial: HomepageSettings })
     setData({ ...data, whyWorkPillars });
   }
 
+  if (loading) {
+    return <p className="text-sm text-tertiary">Loading homepage…</p>;
+  }
+
   return (
     <div className="space-y-space-lg pb-24">
       <header>
@@ -86,6 +109,7 @@ export function HomepageSettingsForm({ initial }: { initial: HomepageSettings })
         <p className="mt-2 text-sm text-tertiary">
           Edit the hero, stats, collaboration cards, and why-work section.
         </p>
+        {error ? <p className="mt-2 text-sm text-primary-container">{error}</p> : null}
       </header>
 
       <SectionCard title="Hero" description="First thing visitors see on the homepage.">
