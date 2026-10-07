@@ -4,27 +4,38 @@ import { getFirestore } from "firebase-admin/firestore";
 
 let adminApp: App | null = null;
 let initFailed = false;
+let initError: string | null = null;
+
+export function getFirebaseAdminInitError() {
+  return initError;
+}
 
 export function isFirebaseAdminConfigured(): boolean {
   return Boolean(
     process.env.FIREBASE_ADMIN_PROJECT_ID &&
       process.env.FIREBASE_ADMIN_CLIENT_EMAIL &&
-      process.env.FIREBASE_ADMIN_PRIVATE_KEY,
+      (process.env.FIREBASE_ADMIN_PRIVATE_KEY ||
+        process.env.FIREBASE_ADMIN_PRIVATE_KEY_BASE64),
   );
 }
 
-/** Normalize private keys pasted into Netlify/UI env vars. */
-function normalizePrivateKey(raw: string): string {
-  let key = raw.trim();
+/** Normalize private keys from Netlify / CI env vars. */
+function resolvePrivateKey(): string {
+  const b64 = process.env.FIREBASE_ADMIN_PRIVATE_KEY_BASE64?.trim();
+  if (b64) {
+    return Buffer.from(b64, "base64").toString("utf8").trim();
+  }
+
+  let key = (process.env.FIREBASE_ADMIN_PRIVATE_KEY || "").trim();
   if (
     (key.startsWith('"') && key.endsWith('"')) ||
     (key.startsWith("'") && key.endsWith("'"))
   ) {
     key = key.slice(1, -1);
   }
-  // Netlify often stores literal \n sequences
+  // Netlify may store either real newlines or literal \n
   key = key.replace(/\\n/g, "\n");
-  return key;
+  return key.trim();
 }
 
 export function getAdminApp(): App | null {
@@ -36,9 +47,12 @@ export function getAdminApp(): App | null {
     return adminApp;
   }
   try {
-    const privateKey = normalizePrivateKey(
-      process.env.FIREBASE_ADMIN_PRIVATE_KEY || "",
-    );
+    const privateKey = resolvePrivateKey();
+    if (!privateKey.includes("BEGIN PRIVATE KEY")) {
+      throw new Error(
+        "FIREBASE_ADMIN_PRIVATE_KEY is missing BEGIN PRIVATE KEY header. Prefer FIREBASE_ADMIN_PRIVATE_KEY_BASE64 on Netlify.",
+      );
+    }
     adminApp = initializeApp({
       credential: cert({
         projectId: process.env.FIREBASE_ADMIN_PROJECT_ID!,
@@ -49,6 +63,7 @@ export function getAdminApp(): App | null {
     return adminApp;
   } catch (error) {
     initFailed = true;
+    initError = error instanceof Error ? error.message : String(error);
     console.error("[firebase-admin] Failed to initialize:", error);
     return null;
   }
@@ -60,6 +75,7 @@ export function getAdminDb() {
   try {
     return getFirestore(app);
   } catch (error) {
+    initError = error instanceof Error ? error.message : String(error);
     console.error("[firebase-admin] Firestore unavailable:", error);
     return null;
   }
@@ -71,6 +87,7 @@ export function getAdminAuth() {
   try {
     return getAuth(app);
   } catch (error) {
+    initError = error instanceof Error ? error.message : String(error);
     console.error("[firebase-admin] Auth unavailable:", error);
     return null;
   }

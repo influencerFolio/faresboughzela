@@ -58,7 +58,8 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
 
   const getToken = useCallback(async () => {
     if (!user) return null;
-    return user.getIdToken();
+    // Force refresh so custom admin claims are present after bootstrap.
+    return user.getIdToken(true);
   }, [user]);
 
   const value = useMemo(

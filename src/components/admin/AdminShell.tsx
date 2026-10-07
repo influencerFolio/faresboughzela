@@ -3,7 +3,7 @@
 import { useAdminAuth } from "@/components/admin/AdminAuthProvider";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const links = [
   {
@@ -60,16 +60,21 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const { user, loading, logout } = useAdminAuth();
   const pathname = usePathname();
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    if (!loading && !user && pathname !== "/admin/login") {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted || loading) return;
+    if (!user && pathname !== "/admin/login") {
       router.replace("/admin/login");
     }
-  }, [loading, user, pathname, router]);
+  }, [mounted, loading, user, pathname, router]);
 
-  if (pathname === "/admin/login") return <>{children}</>;
-
-  if (loading) {
+  // Keep SSR + first client paint identical to avoid React #418 hydration errors.
+  if (!mounted || (pathname !== "/admin/login" && loading)) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-surface text-on-surface">
         Loading…
@@ -77,7 +82,15 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (!user) return null;
+  if (pathname === "/admin/login") return <>{children}</>;
+
+  if (!user) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-surface text-on-surface">
+        Redirecting to login…
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-surface text-on-surface">
