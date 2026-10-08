@@ -6,6 +6,7 @@ import {
   defaultServices,
 } from "@/lib/data/defaults";
 import { getAdminDb } from "@/lib/firebase/admin";
+import { formatFirestoreAdminError } from "@/lib/firebase/firestore-errors";
 import type {
   AboutSettings,
   ContactMessage,
@@ -190,7 +191,11 @@ export async function getRegistrationsAdmin(): Promise<TrainingRegistration[]> {
 export async function saveSettingsDoc(path: string, data: object) {
   const db = getAdminDb();
   if (!db) throw new Error("Firebase Admin is not configured");
-  await db.doc(path).set(data, { merge: true });
+  try {
+    await db.doc(path).set(data, { merge: true });
+  } catch (error) {
+    throw new Error(formatFirestoreAdminError(error));
+  }
 }
 
 export async function saveCollectionDoc(
@@ -200,11 +205,36 @@ export async function saveCollectionDoc(
 ) {
   const db = getAdminDb();
   if (!db) throw new Error("Firebase Admin is not configured");
-  await db.collection(collection).doc(id).set(data, { merge: true });
+  try {
+    await db.collection(collection).doc(id).set(data, { merge: true });
+  } catch (error) {
+    throw new Error(formatFirestoreAdminError(error));
+  }
 }
 
 export async function deleteCollectionDoc(collection: string, id: string) {
   const db = getAdminDb();
   if (!db) throw new Error("Firebase Admin is not configured");
-  await db.collection(collection).doc(id).delete();
+  try {
+    await db.collection(collection).doc(id).delete();
+  } catch (error) {
+    throw new Error(formatFirestoreAdminError(error));
+  }
+}
+
+/** Lightweight probe used by /api/admin/health. */
+export async function probeFirestore(): Promise<{
+  ok: boolean;
+  error: string | null;
+}> {
+  const db = getAdminDb();
+  if (!db) {
+    return { ok: false, error: "Firebase Admin is not configured" };
+  }
+  try {
+    await db.doc("_health/ping").get();
+    return { ok: true, error: null };
+  } catch (error) {
+    return { ok: false, error: formatFirestoreAdminError(error) };
+  }
 }

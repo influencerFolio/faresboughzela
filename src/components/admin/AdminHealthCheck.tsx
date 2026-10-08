@@ -10,6 +10,8 @@ type Health = {
     hasAdminPrivateKeyBase64?: boolean;
     hasAdminPrivateKey?: boolean;
     projectsMatch?: boolean;
+    firestoreReady?: boolean;
+    firestoreError?: string | null;
   };
   cloudinary?: {
     configured?: boolean;
@@ -42,6 +44,7 @@ export function AdminHealthCheck() {
   }
 
   const firebaseOk = health.firebase?.adminReady;
+  const firestoreOk = health.firebase?.firestoreReady;
   const cloudinaryOk = health.cloudinary?.configured;
 
   return (
@@ -53,7 +56,7 @@ export function AdminHealthCheck() {
       }`}
     >
       <p className="font-medium uppercase tracking-wide">
-        Server status: {health.ok ? "Ready" : "Needs Netlify env fix"}
+        Server status: {health.ok ? "Ready" : "Needs setup"}
       </p>
       <ul className="mt-2 list-disc space-y-1 pl-5 text-tertiary">
         <li>
@@ -61,6 +64,12 @@ export function AdminHealthCheck() {
           {firebaseOk
             ? "OK"
             : health.firebase?.adminError || "Not ready — check private key"}
+        </li>
+        <li>
+          Firestore:{" "}
+          {firestoreOk
+            ? "OK"
+            : health.firebase?.firestoreError || "Not reachable"}
         </li>
         <li>
           Private key base64 set:{" "}
@@ -79,7 +88,22 @@ export function AdminHealthCheck() {
         ) : null}
         {health.crash ? <li className="text-primary-container">{health.crash}</li> : null}
       </ul>
-      {!health.ok ? (
+      {!firestoreOk && firebaseOk ? (
+        <p className="mt-2 text-xs text-tertiary">
+          Auth works, but Cloud Firestore was never created for this project.
+          Open{" "}
+          <a
+            className="underline text-on-surface"
+            href="https://console.firebase.google.com/project/faresboughzela-fc7ce/firestore"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Firebase Console → Firestore
+          </a>
+          , create a database (Native mode), then save again.
+        </p>
+      ) : null}
+      {!health.ok && firestoreOk !== false ? (
         <p className="mt-2 text-xs text-tertiary">
           Login can work even when saves/uploads fail. Copy values from{" "}
           <code className="text-on-surface">.env.secret</code> into Netlify with

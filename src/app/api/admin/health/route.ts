@@ -4,6 +4,7 @@ import {
   isFirebaseAdminConfigured,
 } from "@/lib/firebase/admin";
 import { isCloudinaryConfigured } from "@/lib/cloudinary-server";
+import { probeFirestore } from "@/lib/repositories/content";
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
@@ -30,8 +31,12 @@ export async function GET() {
         "Missing FIREBASE_ADMIN_PROJECT_ID / CLIENT_EMAIL / PRIVATE_KEY or PRIVATE_KEY_BASE64";
     }
 
+    const firestore = adminReady
+      ? await probeFirestore()
+      : { ok: false, error: adminError };
+
     return NextResponse.json({
-      ok: adminReady && isCloudinaryConfigured(),
+      ok: adminReady && firestore.ok && isCloudinaryConfigured(),
       siteUrl: process.env.NEXT_PUBLIC_SITE_URL || null,
       firebase: {
         clientProjectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || null,
@@ -46,6 +51,8 @@ export async function GET() {
         adminConfigured,
         adminReady,
         adminError,
+        firestoreReady: firestore.ok,
+        firestoreError: firestore.error,
       },
       cloudinary: {
         configured: isCloudinaryConfigured(),
